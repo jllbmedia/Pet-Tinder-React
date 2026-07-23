@@ -1,0 +1,12 @@
+import { Heart, PawPrint, RotateCcw } from 'lucide-react'
+import { Button } from './ui/button'
+
+export function Results({ likedPets, onStartOver }) {
+  return (
+    <div className="w-full max-w-3xl animate-[fade-in_500ms_ease-out]">
+      <div className="mb-8 flex flex-col items-center text-center"><div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-100 text-orange-500 dark:bg-orange-950/60 dark:text-orange-300"><Heart className="fill-current" size={28} /></div><p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-orange-500 dark:text-orange-300">The shortlist</p><h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Your kind of wonderful</h1><p className="mt-2 max-w-md text-sm text-slate-500 dark:text-stone-400">You liked {likedPets.length} {likedPets.length === 1 ? 'pet' : 'pets'} from this little adventure.</p></div>
+      {likedPets.length > 0 ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">{likedPets.map((pet) => <div key={`${pet.name}-${pet.images[0]}`} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-900"><div className="aspect-square overflow-hidden bg-slate-100 dark:bg-stone-800"><img src={pet.images[0]} alt={`${pet.name}, a ${pet.breed}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div><div className="p-3"><p className="font-display text-sm font-bold text-slate-900 dark:text-stone-100">{pet.name}</p><p className="mt-0.5 truncate text-xs font-semibold text-slate-400 dark:text-stone-500">{pet.breed}</p></div></div>)}</div> : <div className="rounded-3xl border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center dark:border-stone-700 dark:bg-stone-900/50"><PawPrint className="mx-auto text-slate-400 dark:text-stone-500" /><p className="mt-3 text-sm font-semibold text-slate-500 dark:text-stone-400">No matches this time. Every pet was still a good pet.</p></div>}
+      <div className="mt-8 flex justify-center"><Button type="button" variant="outline" size="lg" onClick={onStartOver}><RotateCcw size={17} /> Start over</Button></div>
+    </div>
+  )
+}

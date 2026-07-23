@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Manrope', sans-serif;
+  color: #17202a;
+  background: #f8f7f3;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html { min-width: 320px; background: #f8f7f3; }
+html.dark { background: #171715; }
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: radial-gradient(circle at 10% 0%, rgba(255, 183, 77, 0.14), transparent 32rem), radial-gradient(circle at 90% 100%, rgba(111, 168, 155, 0.12), transparent 32rem), #f8f7f3;
+}
+
+.dark body {
+  background: radial-gradient(circle at 10% 0%, rgba(164, 91, 34, 0.15), transparent 32rem), radial-gradient(circle at 90% 100%, rgba(59, 105, 94, 0.13), transparent 32rem), #171715;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; }
+.font-display { font-family: 'DM Mono', monospace; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
