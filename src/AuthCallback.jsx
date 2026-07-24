@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { getSession } from './lib/authClient'
+import { getSession, authClient } from './lib/authClient'
 import { Button } from './components/ui/button'
 
 export default function AuthCallback() {
@@ -12,7 +12,11 @@ export default function AuthCallback() {
 
     async function verifyAuth() {
       try {
-        const session = await getSession()
+        // Explicitly query the client instance to refresh the local adapter state
+        const session = authClient && typeof authClient.getSession === 'function'
+          ? await authClient.getSession()
+          : await getSession()
+
         const user = session?.user || session?.data?.user
         if (user) {
           setStatus('done')
@@ -20,7 +24,9 @@ export default function AuthCallback() {
         } else {
           // Fallback session check delay if cookies are setting
           setTimeout(async () => {
-            const retry = await getSession()
+            const retry = authClient && typeof authClient.getSession === 'function'
+              ? await authClient.getSession()
+              : await getSession()
             const retryUser = retry?.user || retry?.data?.user
             if (retryUser) {
               setStatus('done')

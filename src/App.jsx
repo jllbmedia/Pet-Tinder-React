@@ -88,7 +88,16 @@ function App() {
   }
 
   // 2. Loading state
-  if (authLoading) return null
+  if (authLoading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent" />
+          <p className="text-sm font-semibold text-slate-500 dark:text-stone-400">Signing you in...</p>
+        </div>
+      </main>
+    )
+  }
 
   // 3. User sign-in wrapper
   if (!user) {
