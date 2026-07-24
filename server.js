@@ -9,6 +9,8 @@ import { neon } from '@neondatabase/serverless'
 dotenv.config({ path: '.env.local' })
 
 const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_API_KEY || 'ba_992p8pf7fx3xrh5p8jmzw5ho3987orva_secret',
+  baseURL: process.env.BETTER_AUTH_URL || 'https://pet-tinder-react.vercel.app',
   plugins: [dash()]
 })
 
