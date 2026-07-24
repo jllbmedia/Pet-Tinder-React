@@ -4,12 +4,12 @@ export async function fetchPetsForUser(userId) {
   const data = await res.json()
   return Array.isArray(data)
     ? data.map((pet) => ({
-        id: pet.id,
-        name: pet.name,
-        breed: pet.breed,
-        age: pet.age,
-        images: pet.image_url ? [pet.image_url] : [],
-      }))
+      id: pet.id,
+      name: pet.name,
+      breed: pet.breed,
+      age: pet.age,
+      images: pet.image_url ? [pet.image_url] : [],
+    }))
     : []
 }
 
@@ -19,12 +19,12 @@ export async function fetchLikedPetsForUser(userId) {
   const data = await res.json()
   return Array.isArray(data)
     ? data.map((pet) => ({
-        id: pet.id,
-        name: pet.name,
-        breed: pet.breed,
-        age: pet.age,
-        images: pet.image_url ? [pet.image_url] : [],
-      }))
+      id: pet.id,
+      name: pet.name,
+      breed: pet.breed,
+      age: pet.age,
+      images: pet.image_url ? [pet.image_url] : [],
+    }))
     : []
 }
 
@@ -34,12 +34,12 @@ export async function fetchPreviewPets() {
   const data = await res.json()
   return Array.isArray(data)
     ? data.map((pet) => ({
-        id: pet.id,
-        name: pet.name,
-        breed: pet.breed,
-        age: pet.age,
-        images: pet.image_url ? [pet.image_url] : [],
-      }))
+      id: pet.id,
+      name: pet.name,
+      breed: pet.breed,
+      age: pet.age,
+      images: pet.image_url ? [pet.image_url] : [],
+    }))
     : []
 }
 

@@ -27,7 +27,7 @@ function App() {
         if (Array.isArray(data) && data.length > 0) {
           setPreviewPets(data.slice(0, 3))
         }
-      }).catch(() => {})
+      }).catch(() => { })
     }
   }, [user, authLoading])
 
@@ -67,7 +67,7 @@ function App() {
   const handlePass = () => {
     if (!isLoading && currentIndex < pets.length) {
       const currentPet = pets[currentIndex]
-      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: false }).catch(() => {})
+      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: false }).catch(() => { })
       setCurrentIndex((index) => index + 1)
     }
   }
@@ -79,7 +79,7 @@ function App() {
         const exists = liked.some((p) => String(p.id) === String(currentPet.id))
         return exists ? liked : [currentPet, ...liked]
       })
-      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: true }).catch(() => {})
+      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: true }).catch(() => { })
       setCurrentIndex((index) => index + 1)
     }
   }
@@ -218,22 +218,20 @@ function App() {
           <div className="flex items-center rounded-full bg-slate-200/70 p-1 dark:bg-stone-800/80 self-center sm:self-auto">
             <button
               onClick={() => setActiveTab('swipe')}
-              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
-                activeTab === 'swipe'
-                  ? 'bg-white text-slate-900 shadow dark:bg-stone-900 dark:text-stone-100'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100'
-              }`}
+              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all ${activeTab === 'swipe'
+                ? 'bg-white text-slate-900 shadow dark:bg-stone-900 dark:text-stone-100'
+                : 'text-slate-500 hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100'
+                }`}
             >
               <Sparkles size={14} className={activeTab === 'swipe' ? 'text-orange-500' : ''} />
               <span>Swipe Deck</span>
             </button>
             <button
               onClick={() => setActiveTab('liked')}
-              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
-                activeTab === 'liked'
-                  ? 'bg-white text-slate-900 shadow dark:bg-stone-900 dark:text-stone-100'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100'
-              }`}
+              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all ${activeTab === 'liked'
+                ? 'bg-white text-slate-900 shadow dark:bg-stone-900 dark:text-stone-100'
+                : 'text-slate-500 hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100'
+                }`}
             >
               <Heart size={14} className={activeTab === 'liked' ? 'fill-orange-500 text-orange-500' : ''} />
               <span>Liked ({likedPets.length})</span>
