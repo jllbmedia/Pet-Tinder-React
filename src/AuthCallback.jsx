@@ -1,31 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getSession } from './lib/authClient'
 import { Button } from './components/ui/button'
 
 export default function AuthCallback() {
   const [status, setStatus] = useState('processing')
+  const hasExecuted = useRef(false)
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
+    if (hasExecuted.current) return
+    hasExecuted.current = true
+
+    async function verifyAuth() {
       try {
-        // try to finalize session with the auth client
-        const s = await getSession()
-        if (!mounted) return
-        if (s && s.user) {
-          // redirect home — AuthProvider will pick up session
+        const session = await getSession()
+        const user = session?.user || session?.data?.user
+        if (user) {
           setStatus('done')
-          window.history.replaceState({}, document.title, '/')
           window.location.replace('/')
-          return
+        } else {
+          // Fallback session check delay if cookies are setting
+          setTimeout(async () => {
+            const retry = await getSession()
+            const retryUser = retry?.user || retry?.data?.user
+            if (retryUser) {
+              setStatus('done')
+              window.location.replace('/')
+            } else {
+              setStatus('no-session')
+            }
+          }, 1000)
         }
-        // fallback: try reading query params or wait a moment
-        setStatus('no-session')
       } catch (err) {
+        console.error('Callback error:', err)
         setStatus('error')
       }
-    })()
-    return () => (mounted = false)
+    }
+
+    verifyAuth()
   }, [])
 
   if (status === 'processing') return <div className="min-h-screen flex items-center justify-center">Finalizing sign-in…</div>
