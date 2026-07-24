@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/auth-proxy/(.*)",
+      "destination": "https://ep-cool-star-ax0km7qb.neonauth.c-4.us-east-2.aws.neon.tech/$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
     },

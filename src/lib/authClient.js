@@ -1,6 +1,6 @@
 import { createAuthClient } from '@neondatabase/auth'
 
-const AUTH_URL = import.meta.env.VITE_NEON_AUTH_URL || import.meta.env.NEXT_PUBLIC_NEON_AUTH_URL || ''
+const AUTH_URL = import.meta.env.VITE_NEON_AUTH_URL || '/auth-proxy'
 
 // Create a client adapter (Better Auth-style adapter)
 export const authClient = createAuthClient(AUTH_URL)
