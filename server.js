@@ -170,6 +170,58 @@ app.post('/api/selections', async (req, res) => {
   }
 })
 
+// Fetch pets previously liked by a user
+app.get('/api/liked-pets', async (req, res) => {
+  try {
+    const userId = req.query.user_id
+    if (!userId) return res.status(400).json({ error: 'user_id is required' })
+
+    let likedPets = []
+    if (sql) {
+      try {
+        likedPets = await sql`
+          SELECT p.id, p.name, p.breed, p.age, p.image_url, p.created_at
+          FROM public.pets p
+          JOIN public.user_selections s ON p.id::text = s.pet_id::text
+          WHERE s.user_id = ${String(userId)} AND s.did_like = true
+          ORDER BY s.created_at DESC
+        `
+      } catch (dbErr) {
+        console.error('[Database Error] Failed to fetch liked pets from Neon database:', dbErr.message || dbErr)
+      }
+    }
+    return res.json(likedPets || [])
+  } catch (err) {
+    console.error('[Server Error] Critical error in GET /api/liked-pets:', err)
+    return res.json([])
+  }
+})
+
+// Fetch random preview pets for the unauthenticated login screen
+app.get('/api/preview-pets', async (req, res) => {
+  try {
+    let pets = []
+    if (sql) {
+      try {
+        pets = await sql`
+          SELECT p.id, p.name, p.breed, p.age, p.image_url
+          FROM public.pets p
+          ORDER BY RANDOM()
+          LIMIT 3
+        `
+      } catch (dbErr) {
+        console.error('[Database Error] Failed to fetch preview pets:', dbErr.message || dbErr)
+      }
+    }
+    if (!pets || pets.length === 0) {
+      pets = FALLBACK_PETS.slice(0, 3)
+    }
+    return res.json(pets)
+  } catch (err) {
+    return res.json(FALLBACK_PETS.slice(0, 3))
+  }
+})
+
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(port, () => {
     console.log(`Better Auth backend listening on http://localhost:${port}`)
