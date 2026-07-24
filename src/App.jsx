@@ -4,6 +4,9 @@ import { Alert, AlertDescription, AlertTitle } from './components/ui/alert'
 import { Button } from './components/ui/button'
 import { PetCard } from './components/PetCard'
 import { Results } from './components/Results'
+import { useAuth } from './AuthProvider'
+import { fetchPetsForUser, recordSelection } from './lib/api'
+import AuthCallback from './AuthCallback'
 
 const PETS_ENDPOINT = 'https://pet.btholt.workers.dev/pets/random/15'
 
@@ -14,31 +17,23 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const { user, loading: authLoading, signInWithGoogle } = useAuth()
 
   const fetchPets = async () => {
     setIsLoading(true)
     setError('')
     setCurrentIndex(0)
     setLikedPets([])
-
     try {
-      const response = await fetch(PETS_ENDPOINT)
-      if (!response.ok) throw new Error('The pet list could not be loaded.')
-
-      const data = await response.json()
-      const responsePets = Array.isArray(data) ? data : data.pets
-      const normalizedPets = Array.isArray(responsePets)
-        ? responsePets.map((pet) => ({
-            ...pet,
-            images: pet.images?.length ? pet.images : pet.image ? [pet.image] : [],
-          }))
-        : []
-
-      if (normalizedPets.length === 0 || normalizedPets.some((pet) => !pet.images[0])) {
-        throw new Error('No pets were returned. Please try again.')
+      if (!user) {
+        setPets([])
+        setError('Sign in to view pets')
+        return
       }
 
-      setPets(normalizedPets)
+      const data = await fetchPetsForUser(user.id)
+      if (!Array.isArray(data) || data.length === 0) throw new Error('No pets available')
+      setPets(data)
     } catch (fetchError) {
       setPets([])
       setError(fetchError.message || 'Something went wrong while finding pets.')
@@ -47,23 +42,55 @@ function App() {
     }
   }
 
+  // quick route: if the redirect path is present, render the callback handler
+  if (typeof window !== 'undefined' && window.location.pathname === '/auth/callback') {
+    return <AuthCallback />
+  }
+
   useEffect(() => {
-    fetchPets()
-  }, [])
+    if (!authLoading && user) fetchPets()
+  }, [authLoading, user])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
   }, [isDarkMode])
 
   const handlePass = () => {
-    if (!isLoading && currentIndex < pets.length) setCurrentIndex((index) => index + 1)
+    if (!isLoading && currentIndex < pets.length) {
+      const currentPet = pets[currentIndex]
+      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: false }).catch(() => {})
+      setCurrentIndex((index) => index + 1)
+    }
   }
 
   const handleLike = () => {
     if (!isLoading && currentIndex < pets.length) {
-      setLikedPets((liked) => [...liked, pets[currentIndex]])
+      const currentPet = pets[currentIndex]
+      setLikedPets((liked) => [...liked, currentPet])
+      if (user) recordSelection({ user_id: user.id, pet_id: currentPet.id, did_like: true }).catch(() => {})
       setCurrentIndex((index) => index + 1)
     }
+  }
+
+  if (authLoading) return null
+
+  if (!user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md text-center p-8">
+          <h2 className="font-display text-2xl font-bold">Welcome to Pawfect</h2>
+          <p className="mt-3 text-sm text-slate-600">Sign in to start swiping through adoptable pets.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Button onClick={signInWithGoogle} className="w-full">Sign in with Google</Button>
+            <Button onClick={() => {
+              const demo = { id: crypto.randomUUID(), name: 'Demo User' }
+              localStorage.setItem('demo_user', JSON.stringify(demo))
+              window.location.reload()
+            }} variant="outline" className="w-full">Continue as Demo User</Button>
+          </div>
+        </div>
+      </main>
+    )
   }
 
   useEffect(() => {
