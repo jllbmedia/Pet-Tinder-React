@@ -123,6 +123,34 @@ app.get('/api/pets', async (req, res) => {
           ORDER BY p.created_at DESC
           LIMIT 50
         `
+
+        // Auto-replenish: If unswiped pets are low, fetch new pets from the API into DB
+        if (!pets || pets.length < 5) {
+          try {
+            const apiRes = await fetch('https://pet.btholt.workers.dev/pets/random/30')
+            const apiData = await apiRes.json()
+            const fetchedPets = apiData.pets || []
+            for (const pet of fetchedPets) {
+              const img = pet.image || (pet.images && pet.images[0]) || 'https://images.unsplash.com/photo-1552053831-71594a27632d'
+              await sql`
+                INSERT INTO public.pets (name, breed, age, image_url)
+                VALUES (${pet.name}, ${pet.breed || 'Mixed'}, ${typeof pet.age === 'number' ? pet.age : 2}, ${img})
+              `
+            }
+            // Re-fetch unswiped pets
+            pets = await sql`
+              SELECT p.id, p.name, p.breed, p.age, p.image_url, p.created_at
+              FROM public.pets p
+              WHERE p.id::text NOT IN (
+                SELECT pet_id::text FROM public.user_selections WHERE user_id = ${String(userId)}
+              )
+              ORDER BY p.created_at DESC
+              LIMIT 50
+            `
+          } catch (replenishErr) {
+            console.error('[Replenish Warning] Failed to auto-fetch new pets:', replenishErr.message || replenishErr)
+          }
+        }
       } catch (dbErr) {
         console.error('[Database Error] Failed to fetch pets from Neon database:', dbErr.message || dbErr)
       }
