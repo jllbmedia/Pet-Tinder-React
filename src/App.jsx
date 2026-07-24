@@ -42,19 +42,6 @@ function App() {
     }
   }
 
-  // quick route: if the redirect path is present, render the callback handler
-  if (typeof window !== 'undefined' && window.location.pathname === '/auth/callback') {
-    return <AuthCallback />
-  }
-
-  useEffect(() => {
-    if (!authLoading && user) fetchPets()
-  }, [authLoading, user])
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode)
-  }, [isDarkMode])
-
   const handlePass = () => {
     if (!isLoading && currentIndex < pets.length) {
       const currentPet = pets[currentIndex]
@@ -72,8 +59,38 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    if (!authLoading && user) fetchPets()
+  }, [authLoading, user])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode)
+  }, [isDarkMode])
+
+  useEffect(() => {
+    const isCallbackPath = typeof window !== 'undefined' && window.location.pathname === '/auth/callback'
+    if (isCallbackPath || !user || authLoading) return
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowLeft') handlePass()
+      if (event.key === 'ArrowRight') handleLike()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  })
+
+  // --- Early returns and conditional rendering (placed below all hook declarations) ---
+
+  // 1. Redirect callback handler
+  if (typeof window !== 'undefined' && window.location.pathname === '/auth/callback') {
+    return <AuthCallback />
+  }
+
+  // 2. Loading state
   if (authLoading) return null
 
+  // 3. User sign-in wrapper
   if (!user) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -92,16 +109,6 @@ function App() {
       </main>
     )
   }
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowLeft') handlePass()
-      if (event.key === 'ArrowRight') handleLike()
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  })
 
   const isFinished = !isLoading && !error && currentIndex === pets.length && pets.length > 0
 
