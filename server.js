@@ -49,7 +49,7 @@ const FALLBACK_PETS = [
     id: 'fallback-1',
     name: 'Bella',
     breed: 'Golden Retriever',
-    age: '2 years',
+    age: 2,
     image_url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=600',
     created_at: new Date().toISOString()
   },
@@ -57,7 +57,7 @@ const FALLBACK_PETS = [
     id: 'fallback-2',
     name: 'Charlie',
     breed: 'Tabby Cat',
-    age: '1 year',
+    age: 1,
     image_url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=600',
     created_at: new Date().toISOString()
   },
@@ -65,7 +65,7 @@ const FALLBACK_PETS = [
     id: 'fallback-3',
     name: 'Max',
     breed: 'French Bulldog',
-    age: '3 years',
+    age: 3,
     image_url: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=600',
     created_at: new Date().toISOString()
   },
@@ -73,7 +73,7 @@ const FALLBACK_PETS = [
     id: 'fallback-4',
     name: 'Luna',
     breed: 'Siamese Cat',
-    age: '4 years',
+    age: 4,
     image_url: 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600',
     created_at: new Date().toISOString()
   },
@@ -81,7 +81,7 @@ const FALLBACK_PETS = [
     id: 'fallback-5',
     name: 'Rocky',
     breed: 'Beagle',
-    age: '5 years',
+    age: 5,
     image_url: 'https://images.unsplash.com/photo-1505628346881-b72b27e84530?auto=format&fit=crop&q=80&w=600',
     created_at: new Date().toISOString()
   }
@@ -115,8 +115,8 @@ app.get('/api/pets', async (req, res) => {
         pets = await sql`
           SELECT p.id, p.name, p.breed, p.age, p.image_url, p.created_at
           FROM public.pets p
-          WHERE p.id NOT IN (
-            SELECT pet_id FROM public.user_selections WHERE user_id = ${userId}
+          WHERE p.id::text NOT IN (
+            SELECT pet_id::text FROM public.user_selections WHERE user_id = ${String(userId)}
           )
           ORDER BY p.created_at DESC
           LIMIT 50
@@ -151,7 +151,7 @@ app.post('/api/selections', async (req, res) => {
       try {
         await sql`
           INSERT INTO public.user_selections (user_id, pet_id, did_like)
-          VALUES (${userId}, ${petId}, ${did_like})
+          VALUES (${String(userId)}, ${String(petId)}, ${did_like})
           ON CONFLICT (user_id, pet_id) DO NOTHING
         `
         return res.json({ ok: true })
