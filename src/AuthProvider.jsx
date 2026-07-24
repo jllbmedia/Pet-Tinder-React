@@ -13,7 +13,8 @@ export function AuthProvider({ children }) {
       try {
         const s = await getSession()
         if (!mounted) return
-        if (s && s.user) setUser(s.user)
+        const resolvedUser = s?.user || s?.data?.user
+        if (resolvedUser) setUser(resolvedUser)
         else {
           // fallback: check demo_user in localStorage
           const demo = JSON.parse(localStorage.getItem('demo_user') || 'null')

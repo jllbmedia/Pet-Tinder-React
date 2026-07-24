@@ -9,7 +9,11 @@ function getClient() {
   if (!_client) {
     try {
       const baseURL = import.meta.env.VITE_NEON_AUTH_URL || window.location.origin + '/auth-proxy'
-      _client = createAuthClient(baseURL)
+      _client = createAuthClient(baseURL, {
+        fetchOptions: {
+          credentials: 'include',  // Send cookies cross-origin for Neon Auth
+        },
+      })
     } catch (e) {
       console.error('[AuthClient] Failed to create auth client:', e)
     }
@@ -31,7 +35,12 @@ export async function getSession() {
   const client = getClient()
   if (!client || typeof client.getSession !== 'function') return null
   try {
-    return await client.getSession()
+    const result = await client.getSession()
+    // Better Auth wraps the response: { data: { session, user } }
+    // Normalize so callers can use session.user directly
+    if (result?.data?.user) return result.data
+    if (result?.user) return result
+    return null
   } catch {
     return null
   }
