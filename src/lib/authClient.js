@@ -14,15 +14,18 @@ export async function getSession() {
   }
 }
 
-export function signInWithProvider(providerId = 'google') {
+export async function signInWithProvider(providerId = 'google') {
   // Try to use adapter if available; otherwise redirect to the auth URL with a callback
-  const redirectTo = `${window.location.origin}/auth/callback`
+  const callbackURL = `${window.location.origin}/auth/callback`
   if (authClient && typeof authClient.signIn?.social === 'function') {
     // prefer client redirect helper if present
     try {
-      return authClient.signIn.social({ providerId, redirectTo })
-    } catch {
-      // fall back to URL redirect
+      return await authClient.signIn.social({
+        provider: providerId,
+        callbackURL,
+      })
+    } catch (e) {
+      console.error('[AuthClient] social sign-in helper failed, falling back to manual redirect:', e)
     }
   }
 
@@ -30,9 +33,9 @@ export function signInWithProvider(providerId = 'google') {
 
   // Common hosted auth redirect paths — try a sensible default
   const candidates = [
-    `${AUTH_URL}/sign-in/oauth?provider=${encodeURIComponent(providerId)}&redirect_to=${encodeURIComponent(redirectTo)}`,
-    `${AUTH_URL}/sign-in/social?providerId=${encodeURIComponent(providerId)}&redirect_to=${encodeURIComponent(redirectTo)}`,
-    `${AUTH_URL}/authorize?provider=${encodeURIComponent(providerId)}&redirect_uri=${encodeURIComponent(redirectTo)}`,
+    `${AUTH_URL}/sign-in/oauth?provider=${encodeURIComponent(providerId)}&redirect_to=${encodeURIComponent(callbackURL)}`,
+    `${AUTH_URL}/sign-in/social?providerId=${encodeURIComponent(providerId)}&redirect_to=${encodeURIComponent(callbackURL)}`,
+    `${AUTH_URL}/authorize?provider=${encodeURIComponent(providerId)}&redirect_uri=${encodeURIComponent(callbackURL)}`,
   ]
 
   window.location.href = candidates[0]
