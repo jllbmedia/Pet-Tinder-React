@@ -1,6 +1,8 @@
 import { createAuthClient } from '@neondatabase/auth'
 
-const AUTH_URL = import.meta.env.VITE_NEON_AUTH_URL || '/auth-proxy'
+// Build a fully-qualified auth base URL — createAuthClient requires an absolute URL
+const AUTH_URL = import.meta.env.VITE_NEON_AUTH_URL
+  || (typeof window !== 'undefined' ? window.location.origin + '/auth-proxy' : '/auth-proxy')
 
 // Create a client adapter — uses the first-party /auth-proxy rewrite on Vercel
 // so that auth cookies are set on the same origin
